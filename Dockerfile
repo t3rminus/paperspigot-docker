@@ -1,5 +1,5 @@
 # Java Version
-ARG JAVA_VERSION=11
+ARG JAVA_VERSION=8
 
 ################################
 ### We use a java base image ###
@@ -74,6 +74,10 @@ ADD https://bootstrap.pypa.io/get-pip.py .
 RUN python get-pip.py
 
 RUN pip install mcstatus
+RUN apt-get update \
+	&& apt-get install -y \
+		screen \
+	&& rm -rf /var/lib/apt/lists/*
 
 ###################
 ### Healthcheck ###
@@ -111,16 +115,16 @@ USER minecraft
 ### Setup environment ###
 #########################
 # Create symlink for plugin volume as hotfix for some plugins who hard code their directories
-RUN ln -s $PLUGINS_PATH $SERVER_PATH/plugins && \
+RUN ln -sf $PLUGINS_PATH $SERVER_PATH/plugins && \
     # Create symlink for persistent data
-    ln -s $DATA_PATH/banned-ips.json $SERVER_PATH/banned-ips.json && \
-    ln -s $DATA_PATH/banned-players.json $SERVER_PATH/banned-players.json && \
-    ln -s $DATA_PATH/help.yml $SERVER_PATH/help.yml && \
-    ln -s $DATA_PATH/ops.json $SERVER_PATH/ops.json && \
-    ln -s $DATA_PATH/permissions.yml $SERVER_PATH/permissions.yml && \
-    ln -s $DATA_PATH/whitelist.json $SERVER_PATH/whitelist.json && \
+    ln -sf $DATA_PATH/banned-ips.json $SERVER_PATH/banned-ips.json && \
+    ln -sf $DATA_PATH/banned-players.json $SERVER_PATH/banned-players.json && \
+    ln -sf $DATA_PATH/help.yml $SERVER_PATH/help.yml && \
+    ln -sf $DATA_PATH/ops.json $SERVER_PATH/ops.json && \
+    ln -sf $DATA_PATH/permissions.yml $SERVER_PATH/permissions.yml && \
+    ln -sf $DATA_PATH/whitelist.json $SERVER_PATH/whitelist.json && \
     # Create symlink for logs
-    ln -s $LOGS_PATH $SERVER_PATH/logs
+    ln -sf $LOGS_PATH $SERVER_PATH/logs
 
 ###############
 ### Volumes ###
