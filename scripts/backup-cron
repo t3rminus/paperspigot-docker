@@ -1,0 +1,1 @@
+00 * * * * /opt/minecraft/backup.sh -c -i /opt/minecraft

@@ -66,6 +66,7 @@ ENV JAVA_HEAP_SIZE=4G
 ENV JAVA_ARGS="-server -Dcom.mojang.eula.agree=true"
 ENV SPIGOT_ARGS="--nojline"
 ENV PAPER_ARGS=""
+ENV MAX_BACKUPS="32"
 
 #################
 ### Libraries ###
@@ -74,6 +75,22 @@ ADD https://bootstrap.pypa.io/get-pip.py .
 RUN python get-pip.py
 
 RUN pip install mcstatus
+
+RUN apt-get update \
+	&& apt-get install -y screen cron \
+	&& rm -rf /var/lib/apt/lists/*
+
+###############
+### Backups ###
+###############
+# Get backup script
+ADD https://raw.githubusercontent.com/nicolaschan/minecraft-backup/master/backup.sh /opt/minecraft/
+
+# Set-up cron job
+COPY scripts/backup-cron /etc/cron.d/backup-cron
+RUN chmod 0644 /etc/cron.d/backup-cron
+RUN crontab /etc/cron.d/backup-cron
+
 
 ###################
 ### Healthcheck ###
@@ -104,6 +121,8 @@ RUN addgroup minecraft && \
     useradd -ms /bin/bash minecraft -g minecraft -d ${MINECRAFT_PATH} && \
     mkdir ${LOGS_PATH} ${DATA_PATH} ${WORLDS_PATH} ${PLUGINS_PATH} ${CONFIG_PATH} && \
     chown -R minecraft:minecraft ${MINECRAFT_PATH}
+
+RUN service cron start
 
 USER minecraft
 
